@@ -70,4 +70,16 @@ public class AllagiUtils {
         return itemCount;
     }
 
+    public static int getThemeAccentColor(final Context context) {
+        final TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.colorAccent, value, true);
+        return value.data;
+    }
+
+    public static int getThemePrimaryColor(final Context context) {
+        final TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
+        return value.data;
+    }
+
 }

@@ -73,6 +73,8 @@ public class MenuListActivity extends AppCompatActivity {
 
                 clickable = false;
 
+                System.gc();
+
                 Intent intent = new Intent(MenuListActivity.this, ScrollableMenuActivity.class);
                 intent.putExtra("viewPagerInitialPosition", position);
                 intent.putStringArrayListExtra("list", list);

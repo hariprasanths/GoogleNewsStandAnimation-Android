@@ -1,6 +1,5 @@
 package hari.allagi;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -8,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,12 +18,15 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hari on 15/4/18.
@@ -34,12 +37,14 @@ public class ScrollableMenuActivity extends AppCompatActivity {
     CoordinatorLayout coordinatorLayout;
     int viewPagerInitialPosition = 0;
     ViewPager viewPager;
+    LinePageIndicator linePageIndicator;
     ArrayList<String> list = new ArrayList<>();
     ArrayList<Integer> imagesList = new ArrayList<>();
     ArrayList<Fragment> fragmentsList = new ArrayList<>();
     ImageButton backButton;
     View view;
     GestureDetector gestureDetector;
+    boolean isSlideUp = false;
 
     public static int getPosition(int resultCode, Intent data) {
         if (resultCode == RESULT_OK && data != null && data.hasExtra("currentPosition")) {
@@ -48,11 +53,14 @@ public class ScrollableMenuActivity extends AppCompatActivity {
         return -1;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrollable_menu);
+
+        isSlideUp = false;
+
+        System.gc();
 
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         backButton = findViewById(R.id.back_navigation_button);
@@ -80,7 +88,7 @@ public class ScrollableMenuActivity extends AppCompatActivity {
         final CustomTabLayoutText tabLayoutText = findViewById(R.id.tabsText);
         tabLayoutText.setupWithViewPager(viewPager);
 
-        final LinePageIndicator linePageIndicator = (LinePageIndicator) findViewById(R.id.titles);
+        linePageIndicator = (LinePageIndicator) findViewById(R.id.titles);
         linePageIndicator.setViewPager(viewPager);
 
 
@@ -168,7 +176,6 @@ public class ScrollableMenuActivity extends AppCompatActivity {
             }
         });
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             postponeEnterTransition();
         }
@@ -209,7 +216,8 @@ public class ScrollableMenuActivity extends AppCompatActivity {
 
                 tabView.setBackgroundResource(imagesList.get(i));
 
-            } else tabView.setBackgroundColor(Color.parseColor("#1e6ac7"));
+            } else
+                tabView.setBackgroundColor(AllagiUtils.getThemePrimaryColor(getApplicationContext()));
 
             View view = LayoutInflater.from(this).inflate(R.layout.tab, null);
             TextView iv = view.findViewById(R.id.imageView);
@@ -237,6 +245,25 @@ public class ScrollableMenuActivity extends AppCompatActivity {
             startPostponedEnterTransition();
         }
 
+        setEnterSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onSharedElementStart(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
+
+                if (!isSlideUp) {
+                    slideUpView(viewPager);
+                    fadeInView(linePageIndicator);
+                    isSlideUp = true;
+                }
+
+                super.onSharedElementStart(sharedElementNames, sharedElements, sharedElementSnapshots);
+            }
+
+            @Override
+            public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
+                super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots);
+            }
+        });
+
     }
 
     @Override
@@ -258,6 +285,10 @@ public class ScrollableMenuActivity extends AppCompatActivity {
     }
 
     private void setResult() {
+
+        slideDownView(viewPager);
+        fadeOutView(linePageIndicator);
+
         int position = viewPager.getCurrentItem();
         Intent data = new Intent();
         data.putExtra("currentPosition", position);
@@ -273,4 +304,40 @@ public class ScrollableMenuActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(viewPagerInitialPosition, true);
     }
+
+    private void slideUpView(View view) {
+        view.setVisibility(View.VISIBLE);
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                view.getHeight(),
+                0);
+        animate.setDuration(1000);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+    }
+
+    private void slideDownView(View view) {
+        TranslateAnimation animate = new TranslateAnimation(
+                0,
+                0,
+                0,
+                view.getHeight());
+        animate.setDuration(1000);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+    }
+
+    private void fadeInView(View view) {
+        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(1000);
+        view.startAnimation(anim);
+    }
+
+    private void fadeOutView(View view) {
+        AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+        anim.setDuration(1000);
+        view.startAnimation(anim);
+    }
+
 }
