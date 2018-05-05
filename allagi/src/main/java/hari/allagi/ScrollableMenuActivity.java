@@ -1,7 +1,6 @@
 package hari.allagi;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -34,13 +33,23 @@ import java.util.List;
 
 public class ScrollableMenuActivity extends AppCompatActivity {
 
+    private static final int SWIPE_THRESHOLD = 50;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 50;
+    private static final int COLOR_TRUE_WHITE = -1;
+    private static final int COLOR_GRADIENT_WHITE = -1275068417;
+    private static final int STROKE_WIDTH = 5;
+    private static final int STROKE_GAP = 10;
+
     CoordinatorLayout coordinatorLayout;
     int viewPagerInitialPosition = 0;
     ViewPager viewPager;
+    CustomTabLayout tabLayout;
+    CustomTabLayoutText tabLayoutText;
     LinePageIndicator linePageIndicator;
     ArrayList<String> list = new ArrayList<>();
     ArrayList<Integer> imagesList = new ArrayList<>();
     ArrayList<Fragment> fragmentsList = new ArrayList<>();
+    long transitionDuration = 1000;
     ImageButton backButton;
     View view;
     GestureDetector gestureDetector;
@@ -59,14 +68,17 @@ public class ScrollableMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scrollable_menu);
 
         isSlideUp = false;
-
         System.gc();
 
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         backButton = findViewById(R.id.back_navigation_button);
         view = findViewById(R.id.view);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        tabLayout = findViewById(R.id.tabs);
+        tabLayoutText = findViewById(R.id.tabsText);
+        linePageIndicator = (LinePageIndicator) findViewById(R.id.titles);
+
         setSupportActionBar(toolbar);
 
         final ActionBar ab = getSupportActionBar();
@@ -76,28 +88,75 @@ public class ScrollableMenuActivity extends AppCompatActivity {
         viewPagerInitialPosition = getIntent().getIntExtra("viewPagerInitialPosition", 0);
         list = getIntent().getStringArrayListExtra("list");
         imagesList = getIntent().getIntegerArrayListExtra("imagesList");
+
         fragmentsList = Allagi.getFragments();
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        transitionDuration = Allagi.getTransitionDuration();
+
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
 
-        final CustomTabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-        final CustomTabLayoutText tabLayoutText = findViewById(R.id.tabsText);
         tabLayoutText.setupWithViewPager(viewPager);
 
-        linePageIndicator = (LinePageIndicator) findViewById(R.id.titles);
-        linePageIndicator.setViewPager(viewPager);
+        setUpLinePageIndicator();
 
+        onTouchTabLayout();
 
-        linePageIndicator.setStrokeWidth(5);
-        linePageIndicator.setLineWidth(AllagiUtils.getLineWidth(getApplicationContext()));
-        linePageIndicator.setGapWidth(10);
-        linePageIndicator.setSelectedColor(Color.parseColor("#ffffff"));
-        linePageIndicator.setCurrentItem(viewPager.getCurrentItem());
+        registerGestureDetector();
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            postponeEnterTransition();
+        }
+
+        initializeTabs();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(transitionDuration));
+            startPostponedEnterTransition();
+            setSharedElementCallback();
+        }
+
+    }
+
+    @Override
+    public void finish() {
+        setResult();
+        super.finish();
+    }
+
+    @Override
+    public void finishAfterTransition() {
+        setResult();
+        super.finishAfterTransition();
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult();
+        super.onBackPressed();
+    }
+
+    private void setResult() {
+
+        slideDownView(viewPager);
+        fadeOutView(linePageIndicator);
+        fadeOutView(backButton);
+
+        int position = viewPager.getCurrentItem();
+        Intent data = new Intent();
+        data.putExtra("currentPosition", position);
+        setResult(RESULT_OK, data);
+    }
+
+    private void onTouchTabLayout() {
         tabLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -119,10 +178,10 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
 
+    private void registerGestureDetector() {
         gestureDetector = new GestureDetector(ScrollableMenuActivity.this, new GestureDetector.SimpleOnGestureListener() {
-            private static final int SWIPE_THRESHOLD = 50;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 50;
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -151,6 +210,17 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 return result;
             }
         });
+    }
+
+    private void setUpLinePageIndicator() {
+
+        linePageIndicator.setViewPager(viewPager);
+
+        linePageIndicator.setStrokeWidth(STROKE_WIDTH);
+        linePageIndicator.setLineWidth(AllagiUtils.getLineWidth(getApplicationContext()));
+        linePageIndicator.setGapWidth(STROKE_GAP);
+        linePageIndicator.setSelectedColor(COLOR_TRUE_WHITE);
+        linePageIndicator.setCurrentItem(viewPager.getCurrentItem());
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -168,41 +238,19 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 linePageIndicator.onPageScrollStateChanged(arg0);
             }
         });
+    }
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+    private void setupViewPager(ViewPager viewPager) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            postponeEnterTransition();
-        }
+        CustomPagerAdapter adapter = new CustomPagerAdapter(getSupportFragmentManager());
 
-        tabLayoutText.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                TabLayout.Tab selectedTab = tabLayout.getTabAt(tab.getPosition());
-                View selected = tab.getCustomView();
-                TextView iv_text = (TextView) selected.findViewById(R.id.imageView);
-                iv_text.setTextColor(-1);
-            }
+        adapter.addFragmentsList(fragmentsList, list);
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                TabLayout.Tab unSelectedTab = tabLayout.getTabAt(tab.getPosition());
-                View selected = tab.getCustomView();
-                TextView iv_text = (TextView) selected.findViewById(R.id.imageView);
-                iv_text.setTextColor(-1275068417);
-            }
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(viewPagerInitialPosition, true);
+    }
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
+    private void initializeTabs() {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
             TabLayout.Tab tabText = tabLayoutText.getTabAt(i);
@@ -225,26 +273,17 @@ public class ScrollableMenuActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 iv.setTransitionName("text" + i);
             }
-            if (tabViewText.isSelected()) {
-                iv.setTextColor(-1);
-            } else iv.setTextColor(-1275068417);
             tabText.setCustomView(view);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 tabView.setTransitionName("image" + i);
             }
             tab.setText("");
-
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(1000));
-        }
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startPostponedEnterTransition();
-        }
-
+    private void setSharedElementCallback() {
         setEnterSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onSharedElementStart(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
@@ -252,6 +291,7 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 if (!isSlideUp) {
                     slideUpView(viewPager);
                     fadeInView(linePageIndicator);
+                    fadeInView(backButton);
                     isSlideUp = true;
                 }
 
@@ -263,46 +303,6 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots);
             }
         });
-
-    }
-
-    @Override
-    public void finish() {
-        setResult();
-        super.finish();
-    }
-
-    @Override
-    public void finishAfterTransition() {
-        setResult();
-        super.finishAfterTransition();
-    }
-
-    @Override
-    public void onBackPressed() {
-        setResult();
-        super.onBackPressed();
-    }
-
-    private void setResult() {
-
-        slideDownView(viewPager);
-        fadeOutView(linePageIndicator);
-
-        int position = viewPager.getCurrentItem();
-        Intent data = new Intent();
-        data.putExtra("currentPosition", position);
-        setResult(RESULT_OK, data);
-    }
-
-    private void setupViewPager(ViewPager viewPager) {
-
-        CustomPagerAdapter adapter = new CustomPagerAdapter(getSupportFragmentManager());
-
-        adapter.addFragmentsList(fragmentsList, list);
-
-        viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(viewPagerInitialPosition, true);
     }
 
     private void slideUpView(View view) {
@@ -312,7 +312,7 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 0,
                 view.getHeight(),
                 0);
-        animate.setDuration(1000);
+        animate.setDuration(transitionDuration);
         animate.setFillAfter(true);
         view.startAnimation(animate);
     }
@@ -323,20 +323,20 @@ public class ScrollableMenuActivity extends AppCompatActivity {
                 0,
                 0,
                 view.getHeight());
-        animate.setDuration(1000);
+        animate.setDuration(transitionDuration);
         animate.setFillAfter(true);
         view.startAnimation(animate);
     }
 
     private void fadeInView(View view) {
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-        anim.setDuration(1000);
+        anim.setDuration(transitionDuration);
         view.startAnimation(anim);
     }
 
     private void fadeOutView(View view) {
         AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-        anim.setDuration(1000);
+        anim.setDuration(transitionDuration);
         view.startAnimation(anim);
     }
 

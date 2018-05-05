@@ -16,6 +16,7 @@ public class Allagi {
     private Activity activity;
     private ArrayList<String> list = new ArrayList<>();
     private ArrayList<Integer> imagesList = new ArrayList<>();
+    static long transitionDuration = 1000;
 
     private Allagi(@NonNull Activity activity, ArrayList<String> list,
                    ArrayList<Integer> imagesList, ArrayList<Fragment> fragmentsList) {
@@ -37,6 +38,14 @@ public class Allagi {
     public void start() {
         activity.finish();
         MenuListActivity.startActivity(activity, list, imagesList);
+    }
+
+    public void setTransitionDuration(long milliSeconds) {
+        transitionDuration = milliSeconds;
+    }
+
+    public static long getTransitionDuration() {
+        return transitionDuration;
     }
 
 }
