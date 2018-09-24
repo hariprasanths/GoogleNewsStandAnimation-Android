@@ -2,6 +2,8 @@
 
 Navigation pattern like in Google News Stand app with transitions
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Google%20NewsStand%20Animation%20Android-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/7154)
+
 ![Screenshots](https://media.giphy.com/media/wa9LB3wev3QYkNUh7N/giphy.gif)
 
 # Getting Started
