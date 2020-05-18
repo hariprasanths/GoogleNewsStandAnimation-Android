@@ -4,16 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hari on 15/4/18.
@@ -23,18 +24,18 @@ public class MenuListActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     ScrollableMenuRecyclerViewAdapter adapter;
-    ArrayList<String> list = new ArrayList<>();
-    ArrayList<Integer> imagesList = new ArrayList<>();
+    List<String> list = new ArrayList<>();
+    List<Integer> imagesList = new ArrayList<>();
 
     boolean clickable = true;
     boolean firstTime = true;
 
     public static void startActivity(@NonNull Activity activity,
-                                     ArrayList<String> list,
-                                     ArrayList<Integer> imagesList) {
+                                     List<String> list,
+                                     List<Integer> imagesList) {
         Intent intent = new Intent(activity, MenuListActivity.class);
-        intent.putStringArrayListExtra("list", list);
-        intent.putIntegerArrayListExtra("imagesList", imagesList);
+        intent.putStringArrayListExtra("list", (ArrayList<String>) list);
+        intent.putIntegerArrayListExtra("imagesList", (ArrayList<Integer>) imagesList);
         activity.startActivity(intent);
     }
 
@@ -77,8 +78,8 @@ public class MenuListActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MenuListActivity.this, ScrollableMenuActivity.class);
                 intent.putExtra("viewPagerInitialPosition", position);
-                intent.putStringArrayListExtra("list", list);
-                intent.putIntegerArrayListExtra("imagesList", imagesList);
+                intent.putStringArrayListExtra("list", (ArrayList<String>) list);
+                intent.putIntegerArrayListExtra("imagesList", (ArrayList<Integer>) imagesList);
 
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && (list.size() <= 8)) {

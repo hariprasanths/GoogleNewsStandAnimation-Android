@@ -11,9 +11,9 @@ Navigation pattern like in Google News Stand app with transitions
 
 ```groovy
 dependencies {
-    implementation 'hari.allagi:allagi:0.1.0'
+    implementation 'hari.allagi:allagi:0.1.1'
     //or in lower versions:
-    //compile 'hari.allagi:allagi:0.1.0'
+    //compile 'hari.allagi:allagi:0.1.1'
 }
 ```
 <h4>Usage</h4>

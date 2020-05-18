@@ -1,10 +1,11 @@
 package hari.allagisample;
 
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import hari.allagi.Allagi;
 
@@ -15,13 +16,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<String> menuList = new ArrayList<>();     //menu titles
-        ArrayList<Integer> imagesList = new ArrayList<>();      //menu backgrounds
-        ArrayList<Fragment> fragmentsList = new ArrayList<>();      //fragments for each menu headers in second activity
+        List<String> menuList = new ArrayList<>();     //menu titles
+        List<Integer> imagesList = new ArrayList<>();      //menu backgrounds
+        List<Fragment> fragmentsList = new ArrayList<>();      //fragments for each menu headers in second activity
 
         menuList.add("UPCOMING");       //add titles
         menuList.add("EVENTS");
-        menuList.add("GUEST LECTURES\n& CROSSFIRE");
+        menuList.add("GUEST LECTURES");
         menuList.add("SCHEDULE");
         menuList.add("PROFILE");
         menuList.add("MAP");

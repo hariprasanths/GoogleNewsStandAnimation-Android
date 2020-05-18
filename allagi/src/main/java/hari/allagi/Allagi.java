@@ -1,10 +1,11 @@
 package hari.allagi;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hari on 15/4/18.
@@ -12,26 +13,26 @@ import java.util.ArrayList;
 
 public class Allagi {
 
-    static ArrayList<Fragment> fragments;
+    static List<Fragment> fragments;
     private Activity activity;
-    private ArrayList<String> list = new ArrayList<>();
-    private ArrayList<Integer> imagesList = new ArrayList<>();
+    private List<String> list = new ArrayList<>();
+    private List<Integer> imagesList = new ArrayList<>();
     static long transitionDuration = 1000;
 
-    private Allagi(@NonNull Activity activity, ArrayList<String> list,
-                   ArrayList<Integer> imagesList, ArrayList<Fragment> fragmentsList) {
+    private Allagi(@NonNull Activity activity, List<String> list,
+                   List<Integer> imagesList, List<Fragment> fragmentsList) {
         this.activity = activity;
         this.list = list;
         this.imagesList = imagesList;
         fragments = fragmentsList;
     }
 
-    public static Allagi initialize(@NonNull Activity activity, ArrayList<String> list,
-                                    ArrayList<Integer> imagesList, ArrayList<Fragment> fragmentsList) {
+    public static Allagi initialize(@NonNull Activity activity, List<String> list,
+                                    List<Integer> imagesList, List<Fragment> fragmentsList) {
         return new Allagi(activity, list, imagesList, fragmentsList);
     }
 
-    public static ArrayList<Fragment> getFragments() {
+    public static List<Fragment> getFragments() {
         return fragments;
     }
 

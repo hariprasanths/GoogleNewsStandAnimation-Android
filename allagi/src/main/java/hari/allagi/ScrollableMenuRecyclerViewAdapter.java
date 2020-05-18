@@ -2,9 +2,9 @@ package hari.allagi;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.util.Pair;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hari on 15/4/18.
@@ -20,13 +21,13 @@ import java.util.ArrayList;
 
 public class ScrollableMenuRecyclerViewAdapter extends RecyclerView.Adapter<ScrollableMenuRecyclerViewAdapter.ViewHolder>{
     Context context;
-    ArrayList<String> menus;
-    ArrayList<Integer> menusImages;
+    List<String> menus;
+    List<Integer> menusImages;
     OnClickListener onClickListener;
-    ArrayList<Pair<View, String>> values;
+    List<Pair<View, String>> values;
     double itemCount = 4;
 
-    public ScrollableMenuRecyclerViewAdapter(Context context, ArrayList<String> list, ArrayList<Integer> imagesList) {
+    public ScrollableMenuRecyclerViewAdapter(Context context, List<String> list, List<Integer> imagesList) {
         this.context = context;
         this.menus = list;
         values = new ArrayList<>();

@@ -1,8 +1,8 @@
 package hari.allagi;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class CustomPagerAdapter extends FragmentPagerAdapter {
         mFragmentTitles.add(title);
     }
 
-    public void addFragmentsList(ArrayList<Fragment> fragments, ArrayList<String> titles) {
+    public void addFragmentsList(List<Fragment> fragments, List<String> titles) {
         mFragments = fragments;
         mFragmentTitles = titles;
     }

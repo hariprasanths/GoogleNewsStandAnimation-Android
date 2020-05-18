@@ -1,7 +1,7 @@
 package hari.allagi;
 
 import android.content.Context;
-import android.support.design.widget.TabLayout;
+import com.google.android.material.tabs.TabLayout;
 import android.util.AttributeSet;
 
 import java.lang.reflect.Field;
@@ -36,7 +36,7 @@ public class CustomTabLayout extends TabLayout {
 
         Field field;
         try {
-            field = TabLayout.class.getDeclaredField("mScrollableTabMinWidth");
+            field = TabLayout.class.getDeclaredField("scrollableTabMinWidth");
             field.setAccessible(true);
             field.set(this, screenWidth);
         } catch (NoSuchFieldException e) {
@@ -46,7 +46,7 @@ public class CustomTabLayout extends TabLayout {
         }
         Field field2;
         try {
-            field2 = TabLayout.class.getDeclaredField("mRequestedTabMaxWidth");
+            field2 = TabLayout.class.getDeclaredField("requestedTabMaxWidth");
             field2.setAccessible(true);
             field2.set(this, screenWidth);
         } catch (NoSuchFieldException e) {
